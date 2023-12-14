@@ -72,29 +72,45 @@ export default class Game extends Phaser.Scene {
 
 		const speed = 100;
 
+		this.hero.body.setVelocity(0);
+
 		if (this.cursors.left.isDown) {
-			this.hero.anims.play('hero-run-side', true);
-			this.hero.setVelocity(-speed, 0);
+			this.hero.setVelocityX(-speed);
 			this.hero.scaleX = -1;
 			this.hero.body.offset.x = 24;
 
 		} else if (this.cursors.right.isDown) {
-			this.hero.anims.play('hero-run-side', true);
-			this.hero.setVelocity(speed, 0);
+			this.hero.setVelocityX(speed);
 			this.hero.scaleX = 1;
 			this.hero.body.offset.x = 8;
-
-		} else if (this.cursors.up.isDown) {
-			this.hero.anims.play('hero-run-up', true);
-			this.hero.setVelocity(0, -speed);
+		}
+		
+		if (this.cursors.up.isDown) {
+			this.hero.setVelocityY(-speed);
 			//this.hero.body.offset.y = 8;
 
 		} else if (this.cursors.down.isDown) {
-			this.hero.anims.play('hero-run-down', true);
-			this.hero.setVelocity(0, speed);
+			this.hero.setVelocityY(speed);
 			//this.hero.body.offset.y = 4;
+		}
 
-		} else {
+
+		// Animation need to be done once
+		if (this.cursors.up.isDown) {
+			this.hero.anims.play('hero-run-up', true);
+
+		} else if (this.cursors.down.isDown) {
+			this.hero.anims.play('hero-run-down', true);
+
+		} else if (this.cursors.left.isDown) {
+			this.hero.anims.play('hero-run-side', true);
+
+		} else if (this.cursors.right.isDown) {
+			this.hero.anims.play('hero-run-side', true);
+		}
+			
+		
+		if (!this.cursors.left.isDown && !this.cursors.right.isDown && !this.cursors.up.isDown && !this.cursors.down.isDown) {
 			const parts = this.hero.anims.currentAnim.key.split('-');
 			parts[1] = 'idle';
 			this.hero.anims.play(parts.join('-'));
