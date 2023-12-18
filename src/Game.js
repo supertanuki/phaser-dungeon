@@ -1,4 +1,7 @@
-import Phaser from 'phaser'
+import Phaser from 'phaser';
+import { createEnemyAnims } from './EnemyAnims';
+import { createHeroAnims } from './HeroAnims';
+import Enemy from './Enemy';
 
 export default class Game extends Phaser.Scene {	
 	constructor() {
@@ -6,6 +9,7 @@ export default class Game extends Phaser.Scene {
 		this.controls = null;
 		this.cursors = null;
 		this.hero = null;
+		this.enemy = null;
 	}
 
 	preload() {
@@ -13,6 +17,9 @@ export default class Game extends Phaser.Scene {
 	}
 
 	create() {
+		createEnemyAnims(this.anims);
+		createHeroAnims(this.anims);
+
 		const map = this.make.tilemap({ key: 'dungeon' });
 		const tileset = map.addTilesetImage('tiles', 'tiles');
 		const dungeon = map.createLayer('Dungeon', tileset);
@@ -23,46 +30,20 @@ export default class Game extends Phaser.Scene {
 		this.hero = this.physics.add.sprite(50, 50, 'hero', 'run-down-1');
 		this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
 
-		this.anims.create({
-			key: 'hero-idle-down',
-			frames: [{ key: 'hero', frame: 'run-down-2' }]
-		});
-
-		this.anims.create({
-			key: 'hero-idle-up',
-			frames: [{ key: 'hero', frame: 'run-up-4' }]
-		});
-
-		this.anims.create({
-			key: 'hero-idle-side',
-			frames: [{ key: 'hero', frame: 'run-side-2' }]
-		});
-
-		this.anims.create({
-			key: 'hero-run-down',
-			frames: this.anims.generateFrameNames('hero', { start: 1, end: 8, prefix: 'run-down-' }),
-			repeat: -1,
-			frameRate: 14
-		});
-
-		this.anims.create({
-			key: 'hero-run-up',
-			frames: this.anims.generateFrameNames('hero', { start: 1, end: 8, prefix: 'run-up-' }),
-			repeat: -1,
-			frameRate: 14
-		});
-
-		this.anims.create({
-			key: 'hero-run-side',
-			frames: this.anims.generateFrameNames('hero', { start: 1, end: 8, prefix: 'run-side-' }),
-			repeat: -1,
-			frameRate: 14
-		});
-
 		this.hero.anims.play('hero-idle-down');
 
 		this.physics.add.collider(this.hero, dungeon);
 		this.cameras.main.startFollow(this.hero, true);
+
+		//this.enemy = this.physics.add.sprite(180, 90, 'enemy', 'big_demon_run_anim_f0');
+		//this.enemy.anims.play('enemy-run');
+
+		const enemies = this.physics.add.group({
+			classType: Enemy,
+			createCallback: (gameObject) => { gameObject.body.onCollide = true; }
+		});
+		enemies.get(150, 70, 'enemy');
+		this.physics.add.collider(enemies, dungeon);
 	}
 
 	update(time, delta) {
