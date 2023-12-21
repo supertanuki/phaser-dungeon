@@ -23,8 +23,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 			return;
 		}
 
-		const newDirection = Phaser.Math.Between(0, 1);
-		this.direction = newDirection === 0 ? Direction.LEFT : Direction.RIGHT;
+		if (this.direction === Direction.LEFT) {
+			this.direction = Direction.RIGHT;
+		} else {
+			this.direction = Direction.LEFT;
+		}
 	}
 
 	preUpdate(time, delta) {
@@ -41,10 +44,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 			case Direction.RIGHT:
 				this.setVelocity(this.speed, 0);
+				this.scaleX = 1;
+				this.body.offset.x = 0;
 				break;
 
 			case Direction.LEFT:
 				this.setVelocity(-this.speed, 0);
+				this.scaleX = -1;
+				this.body.offset.x = 30;
 				break;
 		}
 	}

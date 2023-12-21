@@ -9,7 +9,6 @@ export default class Game extends Phaser.Scene {
 		this.controls = null;
 		this.cursors = null;
 		this.hero = null;
-		this.enemy = null;
 	}
 
 	preload() {
@@ -34,9 +33,6 @@ export default class Game extends Phaser.Scene {
 
 		this.physics.add.collider(this.hero, dungeon);
 		this.cameras.main.startFollow(this.hero, true);
-
-		//this.enemy = this.physics.add.sprite(180, 90, 'enemy', 'big_demon_run_anim_f0');
-		//this.enemy.anims.play('enemy-run');
 
 		const enemies = this.physics.add.group({
 			classType: Enemy,
