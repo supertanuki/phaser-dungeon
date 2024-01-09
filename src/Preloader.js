@@ -11,6 +11,8 @@ export default class Preloader extends Phaser.Scene {
 
 		this.load.atlas('hero', 'sprites/hero.png', 'sprites/hero.json');
 		this.load.atlas('enemy', 'sprites/enemy.png', 'sprites/enemy.json');
+
+		this.load.plugin('rexvirtualjoystickplugin', 'plugins/rexvirtualjoystickplugin.min.js', true);
 	}
 
 	create() {
