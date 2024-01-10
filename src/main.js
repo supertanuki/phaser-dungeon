@@ -6,7 +6,7 @@ import Game from './Game'
 const config = {
 	type: Phaser.AUTO,
 	parent: 'game',
-	width: 400,
+	width: 550,
 	height: 300,
 	physics: {
 		default: 'arcade',
@@ -17,7 +17,9 @@ const config = {
 	},
 	scene: [Preloader, Game],
 	scale: {
-		zoom: 2
+		zoom: 2,
+		mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
 	}
 }
 

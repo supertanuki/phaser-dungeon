@@ -3,6 +3,13 @@ import { createEnemyAnims } from './EnemyAnims';
 import { createHeroAnims } from './HeroAnims';
 import Enemy from './Enemy';
 
+function isMobile() {
+	return true;
+
+	const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+	return regex.test(navigator.userAgent);
+}
+
 export default class Game extends Phaser.Scene {	
 	constructor() {
 		super('game')
@@ -16,6 +23,7 @@ export default class Game extends Phaser.Scene {
 		this.goingRight = false;
 		this.goingDown = false;
 		this.goingUp = false;
+		this.goingAngle = null;
 	}
 
 	preload() {
@@ -23,6 +31,12 @@ export default class Game extends Phaser.Scene {
 	}
 
 	create() {
+        const width = this.scale.gameSize.width;
+        const height = this.scale.gameSize.height;
+		const zoom = this.cameras.main.zoom;
+
+		console.info({width, height, zoom})
+
 		createEnemyAnims(this.anims);
 		createHeroAnims(this.anims);
 
@@ -76,43 +90,6 @@ export default class Game extends Phaser.Scene {
 			}
 		}, this)
 
-		this.joystick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-			x: 100,
-			y: 200,
-			radius: 100,
-			base: this.add.circle(0, 0, 50, 0x8888ff, 0.6),
-			thumb: this.add.circle(0, 0, 30, 0xcccccc, 0.6),
-			dir: '8dir',
-			forceMin: 16,
-			enable: true
-		});
-
-		this.joystick.on('update', function () {
-			//console.log('joystick rotation : ' + this.joystick.rotation)
-
-			if (this.joystick.left) {
-				this.goingLeft = true
-				this.goingRight = false
-
-			} else if (this.joystick.right) {
-				this.goingRight = true
-				this.goingLeft = false
-			}
-
-			if (this.joystick.up) {
-				this.goingUp = true
-				this.goingDown = false
-
-			} else if (this.joystick.down) {
-				this.goingDown = true
-				this.goingUp = false
-			}
-		}, this);
-
-		this.joystick.on('pointerup', function () {
-			this.stopHero()
-		}, this);
-
 		this.hero = this.physics.add.sprite(50, 50, 'hero', 'run-down-1');
 		this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
 
@@ -121,14 +98,63 @@ export default class Game extends Phaser.Scene {
 		this.physics.add.collider(this.hero, dungeon);
 		this.cameras.main.startFollow(this.hero, true);
 
+		/*
 		const enemies = this.physics.add.group({
 			classType: Enemy,
 			createCallback: (gameObject) => { gameObject.body.onCollide = true; }
 		});
 		enemies.get(150, 70, 'enemy');
-		this.physics.add.collider(enemies, dungeon);
 
+		this.physics.add.collider(enemies, dungeon);
 		this.physics.add.collider(enemies, this.hero, this.handleHeroEnemyCollision, undefined, this);
+		*/
+
+
+		if (isMobile()) {
+			this.joystick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+				x: 100,
+				y: 200,
+				radius: 100,
+				base: this.add.circle(0, 0, 50, 0xff5544, 0.4),
+				thumb: this.add.circle(0, 0, 30, 0xcccccc, 0.3),
+				dir: '8dir',
+				forceMin: 16,
+				enable: true,
+				inputEnable: true,
+				fixed: true
+			});
+
+			// Make floating joystick
+			this.input.on('pointerdown', function(pointer) {
+				this.joystick.setPosition(pointer.x, pointer.y);
+			}, this);
+
+			this.joystick.on('update', function () {
+				this.goingAngle = this.joystick.angle;
+
+				if (this.joystick.left) {
+					this.goingLeft = true
+					this.goingRight = false
+
+				} else if (this.joystick.right) {
+					this.goingRight = true
+					this.goingLeft = false
+				}
+
+				if (this.joystick.up) {
+					this.goingUp = true
+					this.goingDown = false
+
+				} else if (this.joystick.down) {
+					this.goingDown = true
+					this.goingUp = false
+				}
+			}, this);
+
+			this.joystick.on('pointerup', function () {
+				this.stopHero()
+			}, this);
+		}
 	}
 
 	handleHeroEnemyCollision(hero, enemy) {
@@ -190,7 +216,7 @@ export default class Game extends Phaser.Scene {
 			return;
 		}
 
-		console.log(this.goingLeft, this.goingRight, this.goingUp, this.goingDown)
+		//console.log({goingLeft:this.goingLeft, goingRight:this.goingRight, goingUp:this.goingUp, goingDown:this.goingDown})
 
 		this.hero.body.setVelocity(0);
 
@@ -211,17 +237,17 @@ export default class Game extends Phaser.Scene {
 
 
 		// Animation need to be done once
-		if (this.goingUp) {
+		if (this.goingUp && (null === this.goingAngle || -45 > this.goingAngle && -135 <= this.goingAngle)) {
 			this.animateToUp()
 
-		} else if (this.goingDown) {
+		} else if (this.goingDown && (null === this.goingAngle || 45 < this.goingAngle && 135 >= this.goingAngle)) {
 			this.animateToDown()
+
+		} else if (this.goingRight && (null === this.goingAngle || 45 > this.goingAngle && -45 <= this.goingAngle)) {
+			this.animateToRight()
 
 		} else if (this.goingLeft) {
 			this.animateToLeft()
-
-		} else if (this.goingRight) {
-			this.animateToRight()
 		}
 
 		if (!this.goingDown && !this.goingUp && !this.goingRight && !this.goingLeft) {
