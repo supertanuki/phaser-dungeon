@@ -132,7 +132,6 @@ export default class Game extends Phaser.Scene {
 
 			this.joystick.on('update', function () {
 				this.goingAngle = this.joystick.angle;
-				console.log(this.goingAngle);
 
 				if (this.joystick.left) {
 					this.goingLeft = true
