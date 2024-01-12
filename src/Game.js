@@ -121,37 +121,60 @@ export default class Game extends Phaser.Scene {
 				forceMin: 16,
 				enable: true,
 				inputEnable: true,
-				fixed: true
+				fixed: true,
 			});
 
 			// Make floating joystick
 			this.input.on('pointerdown', function(pointer) {
 				this.joystick.setPosition(pointer.x, pointer.y);
+				this.joystick.setVisible(true);
 			}, this);
 
 			this.joystick.on('update', function () {
 				this.goingAngle = this.joystick.angle;
+				console.log(this.goingAngle);
 
 				if (this.joystick.left) {
 					this.goingLeft = true
 					this.goingRight = false
 
+					if (177.5 < this.goingAngle || -177.5 > this.goingAngle) {
+						this.goingUp = false
+						this.goingDown = false
+					}
+
 				} else if (this.joystick.right) {
 					this.goingRight = true
 					this.goingLeft = false
+
+					if (22.5 > this.goingAngle && -22.5 < this.goingAngle) {
+						this.goingUp = false
+						this.goingDown = false
+					}
 				}
 
 				if (this.joystick.up) {
 					this.goingUp = true
 					this.goingDown = false
 
+					if (-67.5 > this.goingAngle && -112.5 < this.goingAngle) {
+						this.goingRight = false
+						this.goingLeft = false
+					}
+
 				} else if (this.joystick.down) {
 					this.goingDown = true
 					this.goingUp = false
+
+					if (67.5 < this.goingAngle && 112.5 > this.goingAngle) {
+						this.goingRight = false
+						this.goingLeft = false
+					}
 				}
 			}, this);
 
 			this.joystick.on('pointerup', function () {
+				this.joystick.setVisible(false);
 				this.stopHero()
 			}, this);
 		}
