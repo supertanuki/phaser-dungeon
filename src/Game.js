@@ -4,8 +4,6 @@ import { createHeroAnims } from './HeroAnims';
 import Enemy from './Enemy';
 
 function isMobile() {
-	return true;
-
 	const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 	return regex.test(navigator.userAgent);
 }
@@ -24,6 +22,10 @@ export default class Game extends Phaser.Scene {
 		this.goingDown = false;
 		this.goingUp = false;
 		this.goingAngle = null;
+		this.dungeon = null;
+		this.hit = 0;
+		
+		this.heroHealth = 5;
 	}
 
 	preload() {
@@ -31,19 +33,13 @@ export default class Game extends Phaser.Scene {
 	}
 
 	create() {
-        const width = this.scale.gameSize.width;
-        const height = this.scale.gameSize.height;
-		const zoom = this.cameras.main.zoom;
-
-		console.info({width, height, zoom})
-
 		createEnemyAnims(this.anims);
 		createHeroAnims(this.anims);
 
 		const map = this.make.tilemap({ key: 'dungeon' });
 		const tileset = map.addTilesetImage('tiles', 'tiles');
-		const dungeon = map.createLayer('Dungeon', tileset);
-		dungeon.setCollisionByProperty({ collide: true });
+		this.dungeon = map.createLayer('Dungeon', tileset);
+		this.dungeon.setCollisionByProperty({ collide: true });
 
 		const camera = this.cameras.main;
 
@@ -56,8 +52,6 @@ export default class Game extends Phaser.Scene {
 		});
 
 		this.input.keyboard.on('keydown', function (event) {
-			console.log(event)
-
 			if (event.key === 'ArrowUp') {
 				this.goingUp = true
 				this.goingDown = false
@@ -77,8 +71,6 @@ export default class Game extends Phaser.Scene {
 		}, this)
 
 		this.input.keyboard.on('keyup', function (event) {
-			console.log(event)
-
 			if (event.key === 'ArrowUp') {
 				this.goingUp = false;
 			} else if (event.key === 'ArrowDown') {
@@ -92,95 +84,116 @@ export default class Game extends Phaser.Scene {
 
 		this.hero = this.physics.add.sprite(50, 50, 'hero', 'run-down-1');
 		this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
-
 		this.hero.anims.play('hero-idle-down')
 
-		this.physics.add.collider(this.hero, dungeon);
+		this.physics.add.collider(this.hero, this.dungeon);
 		this.cameras.main.startFollow(this.hero, true);
 
-		/*
+
+		this.addEnemy(450, 70);
+		this.addEnemy(50, 340);
+		this.addEnemy(550, 320);
+		this.addEnemy(750, 50);
+
+		this.addJoystickForMobile();
+	}
+
+	addEnemy(x, y) {
 		const enemies = this.physics.add.group({
 			classType: Enemy,
 			createCallback: (gameObject) => { gameObject.body.onCollide = true; }
 		});
-		enemies.get(150, 70, 'enemy');
+		enemies.get(x, y, 'enemy');
 
-		this.physics.add.collider(enemies, dungeon);
+		this.physics.add.collider(enemies, this.dungeon);
 		this.physics.add.collider(enemies, this.hero, this.handleHeroEnemyCollision, undefined, this);
-		*/
+	}
 
-
-		if (isMobile()) {
-			this.joystick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-				x: 100,
-				y: 200,
-				radius: 100,
-				base: this.add.circle(0, 0, 50, 0xff5544, 0.4),
-				thumb: this.add.circle(0, 0, 30, 0xcccccc, 0.3),
-				dir: '8dir',
-				forceMin: 16,
-				enable: true,
-				inputEnable: true,
-				fixed: true,
-			});
-
-			// Make floating joystick
-			this.input.on('pointerdown', function(pointer) {
-				this.joystick.setPosition(pointer.x, pointer.y);
-				this.joystick.setVisible(true);
-			}, this);
-
-			this.joystick.on('update', function () {
-				this.goingAngle = this.joystick.angle;
-
-				if (this.joystick.left) {
-					this.goingLeft = true
-					this.goingRight = false
-
-					if (177.5 < this.goingAngle || -177.5 > this.goingAngle) {
-						this.goingUp = false
-						this.goingDown = false
-					}
-
-				} else if (this.joystick.right) {
-					this.goingRight = true
-					this.goingLeft = false
-
-					if (22.5 > this.goingAngle && -22.5 < this.goingAngle) {
-						this.goingUp = false
-						this.goingDown = false
-					}
-				}
-
-				if (this.joystick.up) {
-					this.goingUp = true
-					this.goingDown = false
-
-					if (-67.5 > this.goingAngle && -112.5 < this.goingAngle) {
-						this.goingRight = false
-						this.goingLeft = false
-					}
-
-				} else if (this.joystick.down) {
-					this.goingDown = true
-					this.goingUp = false
-
-					if (67.5 < this.goingAngle && 112.5 > this.goingAngle) {
-						this.goingRight = false
-						this.goingLeft = false
-					}
-				}
-			}, this);
-
-			this.joystick.on('pointerup', function () {
-				this.joystick.setVisible(false);
-				this.stopHero()
-			}, this);
+	addJoystickForMobile() {
+		if (!isMobile()) {
+			return;
 		}
+
+		this.joystick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+			x: 100,
+			y: 200,
+			radius: 100,
+			base: this.add.circle(0, 0, 50, 0xff5544, 0.4),
+			thumb: this.add.circle(0, 0, 30, 0xcccccc, 0.3),
+			dir: '8dir',
+			forceMin: 16,
+			enable: true,
+			inputEnable: true,
+			fixed: true,
+		});
+
+		// Make floating joystick
+		this.input.on('pointerdown', function(pointer) {
+			this.joystick.setPosition(pointer.x, pointer.y);
+			this.joystick.setVisible(true);
+		}, this);
+
+		this.joystick.on('update', function () {
+			this.goingAngle = this.joystick.angle;
+
+			if (this.joystick.left) {
+				this.goingLeft = true
+				this.goingRight = false
+
+				if (177.5 < this.goingAngle || -177.5 > this.goingAngle) {
+					this.goingUp = false
+					this.goingDown = false
+				}
+
+			} else if (this.joystick.right) {
+				this.goingRight = true
+				this.goingLeft = false
+
+				if (22.5 > this.goingAngle && -22.5 < this.goingAngle) {
+					this.goingUp = false
+					this.goingDown = false
+				}
+			}
+
+			if (this.joystick.up) {
+				this.goingUp = true
+				this.goingDown = false
+
+				if (-67.5 > this.goingAngle && -112.5 < this.goingAngle) {
+					this.goingRight = false
+					this.goingLeft = false
+				}
+
+			} else if (this.joystick.down) {
+				this.goingDown = true
+				this.goingUp = false
+
+				if (67.5 < this.goingAngle && 112.5 > this.goingAngle) {
+					this.goingRight = false
+					this.goingLeft = false
+				}
+			}
+		}, this);
+
+		this.joystick.on('pointerup', function () {
+			this.joystick.setVisible(false);
+			this.stopHero()
+		}, this);
 	}
 
 	handleHeroEnemyCollision(hero, enemy) {
-		enemy.destroy();
+		//enemy.destroy();
+
+		const dx = this.hero.x - enemy.x
+		const dy = this.hero.y - enemy.y
+
+		const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
+
+		this.hero.setVelocity(dir.x, dir.y)
+
+		this.hit = 1
+
+		--this.heroHealth
 	}
 
 	goLeft() {
@@ -234,11 +247,28 @@ export default class Game extends Phaser.Scene {
 	}
 
 	update(time, delta) {
-		if (!this.cursors || !this.hero) {
-			return;
+		if (this.hit > 0) {
+			++this.hit
+			this.hero.setTint(0xff0000)
+			
+			if (this.hit % 3) {
+				this.cameras.main.zoom = 1.05
+			} else {
+				this.cameras.main.zoom = 1
+			}
+
+			if (this.hit > 10) {
+				this.hit = 0
+				this.cameras.main.zoom = 1
+				this.hero.setTint(0xffffff)
+			}
+
+			return
 		}
 
-		//console.log({goingLeft:this.goingLeft, goingRight:this.goingRight, goingUp:this.goingUp, goingDown:this.goingDown})
+		if (!this.cursors || !this.hero) {
+			return
+		}
 
 		this.hero.body.setVelocity(0);
 
