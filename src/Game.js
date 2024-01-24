@@ -246,23 +246,22 @@ export default class Game extends Phaser.Scene {
 		this.hero.setVelocity(0, 0);
 	}
 
+	handleHit() {
+		++this.hit
+		this.hero.setTint(0xff0000)
+
+		this.cameras.main.zoom = this.hit % 3 ? 1.05 : 1
+
+		if (this.hit > 10) {
+			this.hit = 0
+			this.cameras.main.zoom = 1
+			this.hero.setTint(0xffffff)
+		}
+	}
+
 	update(time, delta) {
 		if (this.hit > 0) {
-			++this.hit
-			this.hero.setTint(0xff0000)
-			
-			if (this.hit % 3) {
-				this.cameras.main.zoom = 1.05
-			} else {
-				this.cameras.main.zoom = 1
-			}
-
-			if (this.hit > 10) {
-				this.hit = 0
-				this.cameras.main.zoom = 1
-				this.hero.setTint(0xffffff)
-			}
-
+			this.handleHit()
 			return
 		}
 
