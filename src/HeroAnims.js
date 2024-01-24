@@ -36,4 +36,11 @@ export const createHeroAnims = function(anims) {
 		repeat: -1,
 		frameRate: 14
 	});
+
+	anims.create({
+		key: 'hero-die',
+		frames: anims.generateFrameNames('hero', { start: 1, end: 4, prefix: 'faint-' }),
+		repeat: 0,
+		frameRate: 14
+	});
 }

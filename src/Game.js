@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { createEnemyAnims } from './EnemyAnims';
 import { createHeroAnims } from './HeroAnims';
 import Enemy from './Enemy';
+import { sceneEventsEmitter, sceneEvents } from './Events/EventsCenter';
 
 function isMobile() {
 	const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -24,8 +25,9 @@ export default class Game extends Phaser.Scene {
 		this.goingAngle = null;
 		this.dungeon = null;
 		this.hit = 0;
+		this.died = false;
 		
-		this.heroHealth = 5;
+		this.heroHealth = 6;
 	}
 
 	preload() {
@@ -33,6 +35,8 @@ export default class Game extends Phaser.Scene {
 	}
 
 	create() {
+		this.scene.run('game-ui')
+
 		createEnemyAnims(this.anims);
 		createHeroAnims(this.anims);
 
@@ -89,9 +93,9 @@ export default class Game extends Phaser.Scene {
 		this.physics.add.collider(this.hero, this.dungeon);
 		this.cameras.main.startFollow(this.hero, true);
 
-
+		this.addEnemy(150, 50);
 		this.addEnemy(450, 70);
-		this.addEnemy(50, 340);
+		this.addEnemy(50, 400);
 		this.addEnemy(550, 320);
 		this.addEnemy(750, 50);
 
@@ -182,7 +186,9 @@ export default class Game extends Phaser.Scene {
 	}
 
 	handleHeroEnemyCollision(hero, enemy) {
-		//enemy.destroy();
+		if (this.died) {
+			return
+		}
 
 		const dx = this.hero.x - enemy.x
 		const dy = this.hero.y - enemy.y
@@ -194,6 +200,8 @@ export default class Game extends Phaser.Scene {
 		this.hit = 1
 
 		--this.heroHealth
+
+		sceneEventsEmitter.emit(sceneEvents.HEARTSCHANGED, this.heroHealth)
 	}
 
 	goLeft() {
@@ -260,8 +268,19 @@ export default class Game extends Phaser.Scene {
 	}
 
 	update(time, delta) {
+		if (this.died) {
+			return
+		}
+
 		if (this.hit > 0) {
 			this.handleHit()
+			return
+		}
+
+		if (this.heroHealth <= 0) {
+			this.hero.anims.play('hero-die', true)
+			this.hero.setVelocity(0, 0);
+			this.died = true
 			return
 		}
 

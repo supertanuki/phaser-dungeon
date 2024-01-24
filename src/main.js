@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 
 import Preloader from './Preloader'
 import Game from './Game'
+import GameUI from './GameUI'
 
 const config = {
 	type: Phaser.AUTO,
@@ -15,7 +16,7 @@ const config = {
 			gravity: { y: 0 },
 		},
 	},
-	scene: [Preloader, Game],
+	scene: [Preloader, Game, GameUI],
 	scale: {
 		zoom: 2,
 		mode: Phaser.Scale.FIT,
