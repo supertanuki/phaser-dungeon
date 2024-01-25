@@ -3,6 +3,7 @@ import { createEnemyAnims } from "./EnemyAnims";
 import { createHeroAnims } from "./HeroAnims";
 import Enemy from "./Enemy";
 import { sceneEventsEmitter, sceneEvents } from "./Events/EventsCenter";
+import Jeep from "./Jeep";
 
 function isMobile() {
   const regex =
@@ -112,12 +113,14 @@ export default class Game extends Phaser.Scene {
   addEnemy(x, y) {
     if (!this.enemies) {
       this.enemies = this.physics.add.group({
-        classType: Enemy,
+        //classType: Enemy,
+        classType: Jeep,
         createCallback: (gameObject) => {
           gameObject.body.onCollide = true;
         },
       });
       this.physics.add.collider(this.enemies, this.dungeon);
+      this.physics.add.collider(this.enemies, this.enemies);
       this.physics.add.collider(
         this.enemies,
         this.hero,
@@ -300,9 +303,11 @@ export default class Game extends Phaser.Scene {
     this.hero.anims.play("hero-die", true);
     this.hero.setVelocity(0, 0);
     this.died = true;
-
-    //console.log({ width: this.cameras.main.centerX, height: this.cameras.main.centerY })
-    //this.add.text(this.cameras.main.centerX - 100, this.cameras.main.centerY - 50, 'GAME OVER')
+    this.add.text(this.hero.x - 90, this.hero.y - 30, 'GAME OVER', {
+			fontFamily: 'Quicksand',
+			fontSize: '28px',
+			color: '#000'
+		})
 
     sceneEventsEmitter.emit(sceneEvents.GAMEOVER);
 

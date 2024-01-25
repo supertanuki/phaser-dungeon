@@ -9,17 +9,17 @@ const Direction = {
 }
 
 const randomDirection = (exclude) => {
-	const newDirectionIndex = Phaser.Math.Between(0, 4);
+	const newDirectionIndex = Phaser.Math.Between(0, 3);
 	let newDirection = null;
 
 	if (newDirectionIndex === 0) {
-		newDirection = Direction.DOWN;
+		newDirection = Direction.UP;
 	} else if (newDirectionIndex === 1) {
-		newDirection = Direction.RIGHT;
+		newDirection = Direction.DOWN;
 	} else if (newDirectionIndex === 2) {
 		newDirection = Direction.LEFT;
 	} else if (newDirectionIndex === 3) {
-		newDirection = Direction.UP;
+		newDirection = Direction.RIGHT;
 	}
 
 	if (newDirection === exclude) {
@@ -29,16 +29,16 @@ const randomDirection = (exclude) => {
 	return newDirection;
 }
 
-export default class Enemy extends Phaser.Physics.Arcade.Sprite {
+export default class Jeep extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y, texture, frame) {
 		super(scene, x, y, texture, frame);
 
 		this.scene = scene
-		this.direction = Direction.RIGHT;
+		this.direction = Direction.DOWN;
 		this.speed = 50;
-		this.setTexture('jeep', 'jeep-down')
-		this.scale = 0.
-		//this.anims.play('enemy-run');
+		this.setTexture('jeep', 'jeep-left')
+        this.scale = 0.5
+
 		this.moveEvent = scene.time.addEvent({
 			delay: 2000,
 			callback: () => {
@@ -76,23 +76,35 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 		switch(this.direction) {
 			case Direction.UP:
+                this.setTexture('jeep', 'jeep-up')
+                this.body.setSize(this.width, this.height);
 				this.setVelocity(0, -this.speed);
+                this.body.offset.x = 0;
+                this.scaleX = 0.5;
 				break;
 
 			case Direction.DOWN:
+                this.setTexture('jeep', 'jeep-down')
+                this.body.setSize(this.width, this.height);
 				this.setVelocity(0, this.speed);
+                this.body.offset.x = 0;
+                this.scaleX = 0.5;
 				break;
 
 			case Direction.RIGHT:
+                this.setTexture('jeep', 'jeep-left')
+                this.body.setSize(this.width, this.height);
 				this.setVelocity(this.speed, 0);
-				this.scaleX = 1;
+				this.scaleX = 0.5;
 				this.body.offset.x = 0;
 				break;
 
 			case Direction.LEFT:
+                this.setTexture('jeep', 'jeep-left')
+                this.body.setSize(this.width, this.height);
 				this.setVelocity(-this.speed, 0);
-				this.scaleX = -1;
-				this.body.offset.x = 30;
+				this.scaleX = -0.5;
+				this.body.offset.x = 160;
 				break;
 
 			default:

@@ -23,12 +23,14 @@ export default class Preloader extends Phaser.Scene {
 		}, this);
 
 		this.load.image('tiles', 'img/Environment/PNG/tiles.png');
-		this.load.tilemapTiledJSON('dungeon', 'tiles/tiles.json');
+		this.load.tilemapTiledJSON('dungeon', 'tiles/tiles-with-jeep.json');
 
 		this.load.plugin('rexvirtualjoystickplugin', 'plugins/rexvirtualjoystickplugin.min.js', true);
 
 		this.load.atlas('hero', 'sprites/hero.png', 'sprites/hero.json');
-		this.load.atlas('enemy', 'sprites/enemy.png', 'sprites/enemy.json');
+		this.load.atlas('jeep', 'sprites/jeep.png', 'sprites/jeep.json');
+
+		//this.load.atlas('enemy', 'sprites/enemy.png', 'sprites/enemy.json');
 
 		this.load.image('ui-heart-empty', 'img/Heart/heart-empty.png')
 		this.load.image('ui-heart-half', 'img/Heart/heart-half.png')

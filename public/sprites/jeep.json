@@ -1,0 +1,82 @@
+{
+	"textures": [
+		{
+			"image": "jeep",
+			"format": "RGBA8888",
+			"size": {
+				"w": 244,
+				"h": 202
+			},
+			"scale": 2,
+			"frames": [
+				{
+					"filename": "jeep-right",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 160,
+						"h": 102
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 160,
+						"h": 102
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 160,
+						"h": 102
+					}
+				},
+				{
+					"filename": "jeep-down",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 84,
+						"h": 124
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 84,
+						"h": 124
+					},
+					"frame": {
+						"x": 160,
+						"y": 0,
+						"w": 84,
+						"h": 124
+					}
+				},
+				{
+					"filename": "jeep-up",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 84,
+						"h": 100
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 84,
+						"h": 100
+					},
+					"frame": {
+						"x": 0,
+						"y": 102,
+						"w": 84,
+						"h": 100
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
