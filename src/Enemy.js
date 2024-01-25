@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sceneEvents, sceneEventsEmitter } from './Events/EventsCenter';
 
 const Direction = {
 	'UP': 'UP',
@@ -8,8 +9,8 @@ const Direction = {
 }
 
 const randomDirection = (exclude) => {
-	const newDirectionIndex = Phaser.Math.Between(0, 3);
-	let newDirection = Direction.UP;
+	const newDirectionIndex = Phaser.Math.Between(0, 4);
+	let newDirection = null;
 
 	if (newDirectionIndex === 0) {
 		newDirection = Direction.DOWN;
@@ -17,6 +18,8 @@ const randomDirection = (exclude) => {
 		newDirection = Direction.RIGHT;
 	} else if (newDirectionIndex === 2) {
 		newDirection = Direction.LEFT;
+	} else if (newDirectionIndex === 3) {
+		newDirection = Direction.UP;
 	}
 
 	if (newDirection === exclude) {
@@ -30,6 +33,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y, texture, frame) {
 		super(scene, x, y, texture, frame);
 
+		this.scene = scene
 		this.direction = Direction.RIGHT;
 		this.speed = 50;
 		this.anims.play('enemy-run');
@@ -41,7 +45,15 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 			loop: true
 		});
 
+		sceneEventsEmitter.on(sceneEvents.GAMEOVER, this.gameOver, this)
+
 		scene.physics.world.on(Phaser.Physics.Arcade.Events.TILE_COLLIDE, this.handleTileCollision, this);
+	}
+
+	gameOver() {
+		this.direction = null;
+		this.moveEvent.destroy()
+		//this.destroy(this.scene)
 	}
 
 	destroy(fromScene) {
@@ -80,6 +92,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 				this.scaleX = -1;
 				this.body.offset.x = 30;
 				break;
+
+			default:
+				this.setVelocity(0, 0);
 		}
 	}
 }

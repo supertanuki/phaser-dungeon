@@ -3,7 +3,8 @@ import Phaser from 'phaser'
 const sceneEventsEmitter = new Phaser.Events.EventEmitter()
 
 const sceneEvents = {
-	'HEARTSCHANGED': 'HEARTSCHANGED'
+	'HEARTSCHANGED': 'HEARTSCHANGED',
+	'GAMEOVER': 'GAMEOVER'
 }
 
 export {
