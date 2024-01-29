@@ -94,20 +94,38 @@ export default class Game extends Phaser.Scene {
       this
     );
 
-    this.hero = this.physics.add.sprite(50, 50, "hero", "run-down-1");
+    this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
     this.hero.anims.play("hero-idle-down");
 
     this.physics.add.collider(this.hero, this.dungeon);
     this.cameras.main.startFollow(this.hero, true);
 
-    this.addEnemy(150, 50);
-    this.addEnemy(450, 70);
+    //this.addEnemy(150, 50);
+    //this.addEnemy(450, 70);
     this.addEnemy(50, 400);
     this.addEnemy(550, 320);
     this.addEnemy(750, 50);
 
     this.addJoystickForMobile();
+
+
+    this.anims.create({
+      key: 'animated-tree',
+      frames: this.anims.generateFrameNames('tree', { start: 0, end: 7, prefix: 'tree-' }),
+      repeat: -1,
+      frameRate: 6
+    });
+
+    const treesLayer = map.getObjectLayer('trees')
+    
+    // sort tress in order to draw trees from top to down
+    treesLayer.objects.sort((a, b) => a.y - b.y);
+
+    treesLayer.objects.forEach(treeObject => {
+      const tree = this.add.sprite(treeObject.x + 3, treeObject.y - 50, "tree");
+      tree.anims.play("animated-tree");
+    });
   }
 
   addEnemy(x, y) {
@@ -231,6 +249,7 @@ export default class Game extends Phaser.Scene {
       return;
     }
 
+    this.cameras.main.shake(300, 0.01);
     this.hit = 1;
     --this.heroHealth;
     sceneEventsEmitter.emit(sceneEvents.HEARTSCHANGED, this.heroHealth);
@@ -290,11 +309,11 @@ export default class Game extends Phaser.Scene {
     ++this.hit;
     this.hero.setTint(0xff0000);
 
-    this.cameras.main.zoom = this.hit % 3 ? 1.05 : 1;
+    //this.cameras.main.zoom = this.hit % 3 ? 1.05 : 1;
 
     if (this.hit > 10) {
       this.hit = 0;
-      this.cameras.main.zoom = 1;
+      //this.cameras.main.zoom = 1;
       this.hero.setTint(0xffffff);
     }
   }
@@ -315,7 +334,7 @@ export default class Game extends Phaser.Scene {
       if (confirm("Game Over ! Rejouer ?")) {
         location.reload();
       }
-    }, 2000);
+    }, 3000);
   }
 
   update(time, delta) {
