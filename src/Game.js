@@ -101,15 +101,13 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.hero, this.dungeon);
     this.cameras.main.startFollow(this.hero, true);
 
-    //this.addEnemy(150, 50);
-    //this.addEnemy(450, 70);
-    this.addEnemy(50, 400);
-    this.addEnemy(550, 320);
-    this.addEnemy(750, 50);
+    // Add jeeps
+    const jeepsLayer = map.getObjectLayer('jeeps')
+    jeepsLayer.objects.forEach(jeepObject => {
+      this.addEnemy(jeepObject.x, jeepObject.y);
+    });
 
-    this.addJoystickForMobile();
-
-
+    // Add trees
     this.anims.create({
       key: 'animated-tree',
       frames: this.anims.generateFrameNames('tree', { start: 0, end: 7, prefix: 'tree-' }),
@@ -118,14 +116,15 @@ export default class Game extends Phaser.Scene {
     });
 
     const treesLayer = map.getObjectLayer('trees')
-    
     // sort tress in order to draw trees from top to down
     treesLayer.objects.sort((a, b) => a.y - b.y);
-
     treesLayer.objects.forEach(treeObject => {
       const tree = this.add.sprite(treeObject.x + 3, treeObject.y - 50, "tree");
       tree.anims.play("animated-tree");
     });
+
+
+    this.addJoystickForMobile();
   }
 
   addEnemy(x, y) {
@@ -322,10 +321,16 @@ export default class Game extends Phaser.Scene {
     this.hero.anims.play("hero-die", true);
     this.hero.setVelocity(0, 0);
     this.died = true;
-    this.add.text(this.hero.x - 90, this.hero.y - 30, 'GAME OVER', {
+
+    this.add.text(this.hero.x - 88, this.hero.y - 28, 'GAME OVER', {
 			fontFamily: 'Quicksand',
 			fontSize: '28px',
 			color: '#000'
+		})
+    this.add.text(this.hero.x - 90, this.hero.y - 30, 'GAME OVER', {
+			fontFamily: 'Quicksand',
+			fontSize: '28px',
+			color: '#fff'
 		})
 
     sceneEventsEmitter.emit(sceneEvents.GAMEOVER);
