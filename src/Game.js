@@ -39,6 +39,7 @@ export default class Game extends Phaser.Scene {
 
   create() {
     this.scene.run("game-ui");
+    this.scene.run("message");
 
     createEnemyAnims(this.anims);
     createHeroAnims(this.anims);
@@ -50,8 +51,6 @@ export default class Game extends Phaser.Scene {
     
     this.createControls()
 
-
-
     this.anims.create({
       key: 'famer-walk-down',
       frames: this.anims.generateFrameNames('farmer', { start: 1, end: 3, prefix: 'walk-down-' }),
@@ -60,20 +59,17 @@ export default class Game extends Phaser.Scene {
     });
     this.farmer = this.physics.add.sprite(400, 100, "farmer", "walk-down-2");
     this.farmer.anims.play("farmer-walk-down", true);
-    //this.farmer.body.offset.x = 16
     this.farmer.setScale(1)
     this.farmer.setImmovable(true)
-
-
-
-
 
     this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
     this.hero.anims.play("hero-idle-down", true);
 
     this.physics.add.collider(this.farmer, this.dungeon);
-    this.physics.add.collider(this.farmer, this.hero);
+    this.physics.add.collider(this.farmer, this.hero, () => {
+      sceneEventsEmitter.emit(sceneEvents.MESSAGESSENT, 'Coucou !');
+    });
 
     this.physics.add.collider(this.hero, this.dungeon);
     this.cameras.main.startFollow(this.hero, true);
@@ -100,12 +96,10 @@ export default class Game extends Phaser.Scene {
       tree.anims.play("animated-tree");
     });
 
-
     this.addJoystickForMobile();
   }
 
   createControls() {
-    //this.cursors = this.input.keyboard.createCursorKeys();
     this.cursors = this.input.keyboard.addKeys({
       up: "up",
       down: "down",

@@ -3,6 +3,7 @@ import Phaser from 'phaser'
 import Preloader from './Preloader'
 import Game from './Game'
 import GameUI from './GameUI'
+import Message from './Message'
 
 const config = {
 	type: Phaser.AUTO,
@@ -12,11 +13,11 @@ const config = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			debug: true,
+			//debug: true,
 			gravity: { y: 0 },
 		},
 	},
-	scene: [Preloader, Game, GameUI],
+	scene: [Preloader, Game, GameUI, Message],
 	scale: {
 		zoom: 2,
 		mode: Phaser.Scale.FIT,
