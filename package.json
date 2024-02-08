@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "vite",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"publish": "vite build && cp -a dist/. ../home/projets/videogame/demo/"
 	},
 	"devDependencies": {
 		"eslint": "^8.25.0",

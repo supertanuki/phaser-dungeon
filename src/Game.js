@@ -47,9 +47,64 @@ export default class Game extends Phaser.Scene {
     const tileset = map.addTilesetImage("tiles", "tiles");
     this.dungeon = map.createLayer("Dungeon", tileset);
     this.dungeon.setCollisionByProperty({ collide: true });
+    
+    this.createControls()
 
-    const camera = this.cameras.main;
 
+
+    this.anims.create({
+      key: 'famer-walk-down',
+      frames: this.anims.generateFrameNames('farmer', { start: 1, end: 3, prefix: 'walk-down-' }),
+      repeat: -1,
+      frameRate: 14
+    });
+    this.farmer = this.physics.add.sprite(400, 100, "farmer", "walk-down-2");
+    this.farmer.anims.play("farmer-walk-down", true);
+    //this.farmer.body.offset.x = 16
+    this.farmer.setScale(1)
+    this.farmer.setImmovable(true)
+
+
+
+
+
+    this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
+    this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
+    this.hero.anims.play("hero-idle-down", true);
+
+    this.physics.add.collider(this.farmer, this.dungeon);
+    this.physics.add.collider(this.farmer, this.hero);
+
+    this.physics.add.collider(this.hero, this.dungeon);
+    this.cameras.main.startFollow(this.hero, true);
+
+    // Add jeeps
+    const jeepsLayer = map.getObjectLayer('jeeps')
+    jeepsLayer.objects.forEach(jeepObject => {
+      this.addEnemy(jeepObject.x, jeepObject.y);
+    });
+
+    // Add trees
+    this.anims.create({
+      key: 'animated-tree',
+      frames: this.anims.generateFrameNames('tree', { start: 0, end: 7, prefix: 'tree-' }),
+      repeat: -1,
+      frameRate: 6
+    });
+
+    const treesLayer = map.getObjectLayer('trees')
+    // sort tress in order to draw trees from top to down
+    treesLayer.objects.sort((a, b) => a.y - b.y);
+    treesLayer.objects.forEach(treeObject => {
+      const tree = this.add.sprite(treeObject.x + 3, treeObject.y - 50, "tree");
+      tree.anims.play("animated-tree");
+    });
+
+
+    this.addJoystickForMobile();
+  }
+
+  createControls() {
     //this.cursors = this.input.keyboard.createCursorKeys();
     this.cursors = this.input.keyboard.addKeys({
       up: "up",
@@ -93,38 +148,6 @@ export default class Game extends Phaser.Scene {
       },
       this
     );
-
-    this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
-    this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
-    this.hero.anims.play("hero-idle-down");
-
-    this.physics.add.collider(this.hero, this.dungeon);
-    this.cameras.main.startFollow(this.hero, true);
-
-    // Add jeeps
-    const jeepsLayer = map.getObjectLayer('jeeps')
-    jeepsLayer.objects.forEach(jeepObject => {
-      this.addEnemy(jeepObject.x, jeepObject.y);
-    });
-
-    // Add trees
-    this.anims.create({
-      key: 'animated-tree',
-      frames: this.anims.generateFrameNames('tree', { start: 0, end: 7, prefix: 'tree-' }),
-      repeat: -1,
-      frameRate: 6
-    });
-
-    const treesLayer = map.getObjectLayer('trees')
-    // sort tress in order to draw trees from top to down
-    treesLayer.objects.sort((a, b) => a.y - b.y);
-    treesLayer.objects.forEach(treeObject => {
-      const tree = this.add.sprite(treeObject.x + 3, treeObject.y - 50, "tree");
-      tree.anims.play("animated-tree");
-    });
-
-
-    this.addJoystickForMobile();
   }
 
   addEnemy(x, y) {
@@ -308,11 +331,8 @@ export default class Game extends Phaser.Scene {
     ++this.hit;
     this.hero.setTint(0xff0000);
 
-    //this.cameras.main.zoom = this.hit % 3 ? 1.05 : 1;
-
     if (this.hit > 10) {
       this.hit = 0;
-      //this.cameras.main.zoom = 1;
       this.hero.setTint(0xffffff);
     }
   }

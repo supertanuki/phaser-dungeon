@@ -1,0 +1,82 @@
+{
+	"textures": [
+		{
+			"image": "farmer",
+			"format": "RGBA8888",
+			"size": {
+				"w": 14,
+				"h": 52
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "walk-down-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 2,
+						"w": 14,
+						"h": 18
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 14,
+						"h": 18
+					}
+				},
+				{
+					"filename": "walk-down-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 3,
+						"w": 14,
+						"h": 17
+					},
+					"frame": {
+						"x": 0,
+						"y": 18,
+						"w": 14,
+						"h": 17
+					}
+				},
+				{
+					"filename": "walk-down-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 3,
+						"w": 14,
+						"h": 17
+					},
+					"frame": {
+						"x": 0,
+						"y": 35,
+						"w": 14,
+						"h": 17
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
