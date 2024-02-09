@@ -67,6 +67,7 @@ export default class Game extends Phaser.Scene {
     });
     this.farmer = this.physics.add.sprite(400, 100, "farmer", "walk-down-2");
     this.farmer.anims.play("farmer-walk-down", true);
+    this.farmer.setVelocity(0, 10)
     this.farmer.setScale(1)
     this.farmer.setImmovable(true)
 
@@ -78,7 +79,9 @@ export default class Game extends Phaser.Scene {
 
     this.physics.add.collider(this.farmer, this.dungeon);
     this.physics.add.collider(this.farmer, this.hero, () => {
-      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer');
+      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer')
+      this.farmer.anims.stop()
+      this.farmer.setVelocity(0)
     });
 
     this.physics.add.collider(this.hero, this.dungeon);
@@ -112,7 +115,7 @@ export default class Game extends Phaser.Scene {
     sceneEventsEmitter.on(sceneEvents.DiscussionWaiting, this.handleDiscussionWaiting, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnded, this)
 
-    // always set it at the end to avoid events collision
+    // always set it at the end to priorize events listeners
     new Workflow()
   }
 
@@ -124,8 +127,20 @@ export default class Game extends Phaser.Scene {
     this.currentDiscussionStatus = DiscussionStatus.WAITING
   }
 
-  handleDiscussionEnded() {
+  handleDiscussionEnded(sprite) {
     this.currentDiscussionStatus = DiscussionStatus.NONE
+
+    if ('farmer' == sprite) {
+      this.time.addEvent({
+        callback: () => {
+          if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
+            this.farmer.anims.play("farmer-walk-down", true);
+            this.farmer.setVelocity(0, 10)
+          }
+        },
+        delay: 2000,
+      });
+    }
   }
 
   createControls() {

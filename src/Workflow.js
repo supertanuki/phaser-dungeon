@@ -1,25 +1,5 @@
 import { sceneEvents, sceneEventsEmitter } from "./Events/EventsCenter";
-
-const messageWorkflow = {
-  farmer: [
-    {
-      messages: [
-        "Coucou ! Tu es qui ?",
-        "Tu vas bien ?",
-        "Tu parles pas ? Bon ben à plus tard !",
-      ],
-    },
-    {
-      messages: [
-        "Que veux-tu encore ?",
-        "Ça suffit maintenant !"
-      ],
-      condition: {
-        'delayFromPreviousMessage': 10 // not implemented
-      }
-    },
-  ],
-};
+import { messageWorkflow } from "./Workflow/messageWorkflow";
 
 export default class Workflow {
   constructor() {
@@ -87,7 +67,7 @@ export default class Workflow {
     const message = this.getCurrentMessage();
 
     if (!message) {
-      sceneEventsEmitter.emit(sceneEvents.DiscussionEnded);
+      sceneEventsEmitter.emit(sceneEvents.DiscussionEnded, this.currentSprite);
       return;
     }
 
