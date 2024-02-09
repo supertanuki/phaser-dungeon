@@ -5,6 +5,7 @@ import Enemy from "./Enemy";
 import { sceneEventsEmitter, sceneEvents } from "./Events/EventsCenter";
 import Jeep from "./Jeep";
 import Workflow from "./Workflow";
+import "./Sprites/Farmer";
 
 const DiscussionStatus = {
   'NONE': 'NONE',
@@ -58,20 +59,8 @@ export default class Game extends Phaser.Scene {
     this.dungeon.setCollisionByProperty({ collide: true });
 
 
-
-    this.anims.create({
-      key: 'farmer-walk-down',
-      frames: this.anims.generateFrameNames('farmer', { start: 1, end: 3, prefix: 'walk-down-' }),
-      repeat: -1,
-      frameRate: 7
-    });
-    this.farmer = this.physics.add.sprite(400, 100, "farmer", "walk-down-2");
-    this.farmer.anims.play("farmer-walk-down", true);
-    this.farmer.setVelocity(0, 10)
-    this.farmer.setScale(1)
-    this.farmer.setImmovable(true)
-
-
+    this.farmer = this.add.farmer(400, 100, 'farmer')
+    this.farmer.move()
 
     this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
@@ -80,8 +69,7 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.farmer, this.dungeon);
     this.physics.add.collider(this.farmer, this.hero, () => {
       sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer')
-      this.farmer.anims.stop()
-      this.farmer.setVelocity(0)
+      this.farmer.stopMoving()
     });
 
     this.physics.add.collider(this.hero, this.dungeon);
@@ -134,8 +122,7 @@ export default class Game extends Phaser.Scene {
       this.time.addEvent({
         callback: () => {
           if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
-            this.farmer.anims.play("farmer-walk-down", true);
-            this.farmer.setVelocity(0, 10)
+            this.farmer.move()
           }
         },
         delay: 2000,

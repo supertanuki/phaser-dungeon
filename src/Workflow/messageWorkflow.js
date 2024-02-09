@@ -2,9 +2,7 @@ const messageWorkflow = {
   farmer: [
     {
       messages: [
-        "Je peux regarder la télé ?",
         "Coucou ! Tu es qui ?",
-        "Tu vas bien ?",
         "Tu parles pas ? Bon ben à plus tard !",
       ],
     },

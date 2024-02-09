@@ -37,8 +37,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 		this.direction = Direction.RIGHT;
 		this.speed = 50;
 		this.setTexture('jeep', 'jeep-down')
-		this.scale = 0.
-		//this.anims.play('enemy-run');
+
 		this.moveEvent = scene.time.addEvent({
 			delay: 2000,
 			callback: () => {

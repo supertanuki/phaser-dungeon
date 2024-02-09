@@ -11,7 +11,7 @@ export default class Message extends Phaser.Scene {
   create() {
     const config = this.sys.game.config;
     this.textObject = this.add.text(config.width / 2, config.height - 20, "", {
-      font: "14px",
+      font: "14px Arial",
       fill: "#ffffff",
       backgroundColor: "rgba(0,0,0,0.6)",
       padding: 6,
