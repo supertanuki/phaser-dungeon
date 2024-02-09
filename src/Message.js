@@ -27,6 +27,12 @@ export default class Message extends Phaser.Scene {
       .setVisible(false)
 
     sceneEventsEmitter.on(sceneEvents.MESSAGESSENT, this.handleMessage, this)
+    sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnd, this)
+  }
+
+  handleDiscussionEnd() {
+    this.textObject.text = ''
+    this.textObject.setVisible(false)
   }
 
   handleMessage(text) {
@@ -34,6 +40,7 @@ export default class Message extends Phaser.Scene {
         return
     }
 
+    this.textObject.text = ''
     this.currentText = text
     this.textObject.setVisible(true)
     
@@ -55,6 +62,10 @@ export default class Message extends Phaser.Scene {
       callback: () => {
         this.textObject.text += text[i]
         ++i
+
+        if (i >= length) {
+          sceneEventsEmitter.emit(sceneEvents.DiscussionWaiting)
+        }
       },
       repeat: length - 1,
       delay: 10,

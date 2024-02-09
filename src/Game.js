@@ -4,6 +4,13 @@ import { createHeroAnims } from "./HeroAnims";
 import Enemy from "./Enemy";
 import { sceneEventsEmitter, sceneEvents } from "./Events/EventsCenter";
 import Jeep from "./Jeep";
+import Workflow from "./Workflow";
+
+const DiscussionStatus = {
+  'NONE': 'NONE',
+	'STARTED': 'STARTED',
+	'WAITING': 'WAITING',
+}
 
 function isMobile() {
   const regex =
@@ -31,6 +38,7 @@ export default class Game extends Phaser.Scene {
 
     this.heroHealth = 10;
     this.enemies;
+    this.currentDiscussionStatus = DiscussionStatus.NONE;
   }
 
   preload() {
@@ -38,29 +46,31 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
-    this.scene.run("game-ui");
-    this.scene.run("message");
+    this.scene.run("game-ui")
+    this.scene.run("message")
 
-    createEnemyAnims(this.anims);
+    //createEnemyAnims(this.anims);
     createHeroAnims(this.anims);
 
     const map = this.make.tilemap({ key: "dungeon" });
     const tileset = map.addTilesetImage("tiles", "tiles");
     this.dungeon = map.createLayer("Dungeon", tileset);
     this.dungeon.setCollisionByProperty({ collide: true });
-    
-    this.createControls()
+
+
 
     this.anims.create({
-      key: 'famer-walk-down',
+      key: 'farmer-walk-down',
       frames: this.anims.generateFrameNames('farmer', { start: 1, end: 3, prefix: 'walk-down-' }),
       repeat: -1,
-      frameRate: 14
+      frameRate: 7
     });
     this.farmer = this.physics.add.sprite(400, 100, "farmer", "walk-down-2");
     this.farmer.anims.play("farmer-walk-down", true);
     this.farmer.setScale(1)
     this.farmer.setImmovable(true)
+
+
 
     this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
@@ -68,7 +78,7 @@ export default class Game extends Phaser.Scene {
 
     this.physics.add.collider(this.farmer, this.dungeon);
     this.physics.add.collider(this.farmer, this.hero, () => {
-      sceneEventsEmitter.emit(sceneEvents.MESSAGESSENT, 'Coucou !');
+      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer');
     });
 
     this.physics.add.collider(this.hero, this.dungeon);
@@ -96,7 +106,26 @@ export default class Game extends Phaser.Scene {
       tree.anims.play("animated-tree");
     });
 
-    this.addJoystickForMobile();
+    this.createControls()
+
+    sceneEventsEmitter.on(sceneEvents.DiscussionStarted, this.handleDiscussionStarted, this)
+    sceneEventsEmitter.on(sceneEvents.DiscussionWaiting, this.handleDiscussionWaiting, this)
+    sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnded, this)
+
+    // always set it at the end to avoid events collision
+    new Workflow()
+  }
+
+  handleDiscussionStarted() {
+    this.currentDiscussionStatus = DiscussionStatus.STARTED
+  }
+
+  handleDiscussionWaiting() {
+    this.currentDiscussionStatus = DiscussionStatus.WAITING
+  }
+
+  handleDiscussionEnded() {
+    this.currentDiscussionStatus = DiscussionStatus.NONE
   }
 
   createControls() {
@@ -142,6 +171,18 @@ export default class Game extends Phaser.Scene {
       },
       this
     );
+    
+    this.addJoystickForMobile()
+
+    this.input.keyboard.on("keydown", this.handleAction, this)
+  }
+
+  handleAction() {
+    if (this.currentDiscussionStatus == DiscussionStatus.WAITING) {
+      this.currentDiscussionStatus = DiscussionStatus.STARTED
+
+      sceneEventsEmitter.emit(sceneEvents.DiscussionContinuing);
+    }
   }
 
   addEnemy(x, y) {
@@ -247,6 +288,8 @@ export default class Game extends Phaser.Scene {
       },
       this
     );
+
+    this.joystick.on("pointerdown", this.handleAction, this)
   }
 
   handleHeroEnemyCollision(hero, enemy) {
@@ -376,6 +419,13 @@ export default class Game extends Phaser.Scene {
     }
 
     this.hero.body.setVelocity(0);
+
+
+    if (DiscussionStatus.STARTED == this.currentDiscussionStatus) {
+      this.stopHero()
+      return
+    }
+
 
     if (this.goingLeft) {
       this.goLeft();

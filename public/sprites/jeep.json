@@ -10,7 +10,7 @@
 			"scale": 2,
 			"frames": [
 				{
-					"filename": "jeep-right",
+					"filename": "jeep-left",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
