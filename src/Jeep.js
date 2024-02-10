@@ -1,33 +1,6 @@
 import Phaser from 'phaser';
 import { sceneEvents, sceneEventsEmitter } from './Events/EventsCenter';
-
-const Direction = {
-	'UP': 'UP',
-	'DOWN': 'DOWN',
-	'RIGHT': 'RIGHT',
-	'LEFT': 'LEFT'
-}
-
-const randomDirection = (exclude) => {
-	const newDirectionIndex = Phaser.Math.Between(0, 3);
-	let newDirection = null;
-
-	if (newDirectionIndex === 0) {
-		newDirection = Direction.UP;
-	} else if (newDirectionIndex === 1) {
-		newDirection = Direction.DOWN;
-	} else if (newDirectionIndex === 2) {
-		newDirection = Direction.LEFT;
-	} else if (newDirectionIndex === 3) {
-		newDirection = Direction.RIGHT;
-	}
-
-	if (newDirection === exclude) {
-		return randomDirection(exclude);
-	}
-
-	return newDirection;
-}
+import { Direction, randomDirection } from './Utils/randomDirection';
 
 export default class Jeep extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y, texture, frame) {

@@ -4,8 +4,8 @@
 			"image": "farmer",
 			"format": "RGBA8888",
 			"size": {
-				"w": 14,
-				"h": 52
+				"w": 28,
+				"h": 105
 			},
 			"scale": 1,
 			"frames": [
@@ -31,6 +31,48 @@
 					}
 				},
 				{
+					"filename": "walk-up-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 1,
+						"w": 14,
+						"h": 18
+					},
+					"frame": {
+						"x": 0,
+						"y": 18,
+						"w": 14,
+						"h": 18
+					}
+				},
+				{
+					"filename": "walk-left-2",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 2,
+						"y": 1,
+						"w": 12,
+						"h": 18
+					},
+					"frame": {
+						"x": 0,
+						"y": 36,
+						"w": 12,
+						"h": 18
+					}
+				},
+				{
 					"filename": "walk-down-1",
 					"rotated": false,
 					"trimmed": true,
@@ -46,7 +88,7 @@
 					},
 					"frame": {
 						"x": 0,
-						"y": 18,
+						"y": 54,
 						"w": 14,
 						"h": 17
 					}
@@ -66,9 +108,93 @@
 						"h": 17
 					},
 					"frame": {
-						"x": 0,
-						"y": 35,
+						"x": 12,
+						"y": 36,
 						"w": 14,
+						"h": 17
+					}
+				},
+				{
+					"filename": "walk-up-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 2,
+						"w": 14,
+						"h": 17
+					},
+					"frame": {
+						"x": 14,
+						"y": 0,
+						"w": 14,
+						"h": 17
+					}
+				},
+				{
+					"filename": "walk-up-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 1,
+						"y": 2,
+						"w": 14,
+						"h": 17
+					},
+					"frame": {
+						"x": 14,
+						"y": 17,
+						"w": 14,
+						"h": 17
+					}
+				},
+				{
+					"filename": "walk-left-1",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 2,
+						"y": 2,
+						"w": 13,
+						"h": 17
+					},
+					"frame": {
+						"x": 0,
+						"y": 71,
+						"w": 13,
+						"h": 17
+					}
+				},
+				{
+					"filename": "walk-left-3",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 16,
+						"h": 21
+					},
+					"spriteSourceSize": {
+						"x": 2,
+						"y": 2,
+						"w": 13,
+						"h": 17
+					},
+					"frame": {
+						"x": 0,
+						"y": 88,
+						"w": 13,
 						"h": 17
 					}
 				}

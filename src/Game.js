@@ -58,15 +58,12 @@ export default class Game extends Phaser.Scene {
     this.dungeon = map.createLayer("Dungeon", tileset);
     this.dungeon.setCollisionByProperty({ collide: true });
 
-
     this.farmer = this.add.farmer(400, 100, 'farmer')
-    this.farmer.move()
 
     this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
     this.hero.anims.play("hero-idle-down", true);
 
-    this.physics.add.collider(this.farmer, this.dungeon);
     this.physics.add.collider(this.farmer, this.hero, () => {
       sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer')
       this.farmer.stopMoving()
