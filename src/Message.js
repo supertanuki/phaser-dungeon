@@ -6,6 +6,7 @@ export default class Message extends Phaser.Scene {
     super("message");
     this.textObject = null
     this.currentText = ''
+    this.delay = 2
   }
 
   create() {
@@ -68,7 +69,7 @@ export default class Message extends Phaser.Scene {
         }
       },
       repeat: length - 1,
-      delay: 10,
+      delay: this.delay,
     });
   }
 }

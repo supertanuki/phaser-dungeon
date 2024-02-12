@@ -6,17 +6,13 @@ import { sceneEventsEmitter, sceneEvents } from "./Events/EventsCenter";
 import Jeep from "./Jeep";
 import Workflow from "./Workflow";
 import "./Sprites/Farmer";
+import isMobile from "./Utils/isMobile";
 
 const DiscussionStatus = {
   'NONE': 'NONE',
+  'READY': 'READY',
 	'STARTED': 'STARTED',
 	'WAITING': 'WAITING',
-}
-
-function isMobile() {
-  const regex =
-    /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-  return regex.test(navigator.userAgent);
 }
 
 export default class Game extends Phaser.Scene {
@@ -33,7 +29,8 @@ export default class Game extends Phaser.Scene {
     this.goingDown = false;
     this.goingUp = false;
     this.goingAngle = null;
-    this.dungeon = null;
+    this.land = null;
+    this.topObjects = null
     this.hit = 0;
     this.died = false;
 
@@ -55,22 +52,24 @@ export default class Game extends Phaser.Scene {
 
     const map = this.make.tilemap({ key: "dungeon" });
     const tileset = map.addTilesetImage("tiles", "tiles");
-    this.dungeon = map.createLayer("Dungeon", tileset);
-    this.dungeon.setCollisionByProperty({ collide: true });
+    this.land = map.createLayer("land", tileset);
+    this.land.setCollisionByProperty({ collide: true });
+    map.createLayer("subbottom", tileset);
+    map.createLayer("bottom", tileset);
 
-    this.farmer = this.add.farmer(400, 100, 'farmer')
 
-    this.hero = this.physics.add.sprite(400, 150, "hero", "run-down-1");
+
+    map.getObjectLayer('hero').objects.forEach(heroPosition => {
+      this.hero = this.physics.add.sprite(heroPosition.x, heroPosition.y, "hero", "run-down-1")
+    });
+
     this.hero.body.setSize(this.hero.width * 0.5, this.hero.height * 0.8);
     this.hero.anims.play("hero-idle-down", true);
 
-    this.physics.add.collider(this.farmer, this.hero, () => {
-      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer')
-      this.farmer.stopMoving()
+    map.getObjectLayer('farmer').objects.forEach(farmerPosition => {
+      this.farmer = this.add.farmer(farmerPosition.x, farmerPosition.y, 'farmer')
+      this.farmer.setImmovable(true)
     });
-
-    this.physics.add.collider(this.hero, this.dungeon);
-    this.cameras.main.startFollow(this.hero, true);
 
     // Add jeeps
     const jeepsLayer = map.getObjectLayer('jeeps')
@@ -94,14 +93,49 @@ export default class Game extends Phaser.Scene {
       tree.anims.play("animated-tree");
     });
 
+    this.topObjects = map.createLayer("top", tileset);
+    this.topObjects.setCollisionByProperty({ collide: true });
+
+    this.physics.add.collider(this.farmer, this.land, () => {
+      this.farmer.changeDirection()
+    });
+    this.physics.add.collider(this.farmer, this.topObjects, () => {
+      this.farmer.changeDirection()
+    });
+
+    this.physics.add.collider(this.farmer, this.hero, () => {
+      sceneEventsEmitter.emit(sceneEvents.DiscussionReady, 'farmer')
+      this.farmer.readyToChat()
+    });
+
+    this.physics.add.collider(this.hero, this.land);
+    this.physics.add.collider(this.hero, this.topObjects);
+
+    this.cameras.main.startFollow(this.hero, true);
     this.createControls()
 
+    sceneEventsEmitter.on(sceneEvents.DiscussionReady, this.handleDiscussionReady, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionStarted, this.handleDiscussionStarted, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionWaiting, this.handleDiscussionWaiting, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnded, this)
 
     // always set it at the end to priorize events listeners
     new Workflow()
+  }
+
+  handleDiscussionReady() {
+    this.currentDiscussionStatus = DiscussionStatus.READY
+
+    this.time.addEvent({
+      callback: () => {
+        if (this.currentDiscussionStatus == DiscussionStatus.READY) {
+          this.currentDiscussionStatus = DiscussionStatus.NONE
+          this.farmer.stopChatting()
+          this.farmer.move()
+        }
+      },
+      delay: 2000,
+    });
   }
 
   handleDiscussionStarted() {
@@ -116,6 +150,7 @@ export default class Game extends Phaser.Scene {
     this.currentDiscussionStatus = DiscussionStatus.NONE
 
     if ('farmer' == sprite) {
+      this.farmer.stopChatting()
       this.time.addEvent({
         callback: () => {
           if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
@@ -129,6 +164,7 @@ export default class Game extends Phaser.Scene {
 
   createControls() {
     this.cursors = this.input.keyboard.addKeys({
+      space: "space",
       up: "up",
       down: "down",
       left: "left",
@@ -137,7 +173,7 @@ export default class Game extends Phaser.Scene {
 
     this.input.keyboard.on(
       "keydown",
-      function (event) {
+      (event) => {
         if (event.key === "ArrowUp") {
           this.goingUp = true;
           this.goingDown = false;
@@ -150,6 +186,8 @@ export default class Game extends Phaser.Scene {
         } else if (event.key === "ArrowRight") {
           this.goingRight = true;
           this.goingLeft = false;
+        } else if (event.keyCode === 32) {
+          this.handleAction()
         }
       },
       this
@@ -158,13 +196,13 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.on(
       "keyup",
       function (event) {
-        if (event.key === "ArrowUp") {
+        if (event.key == "ArrowUp") {
           this.goingUp = false;
-        } else if (event.key === "ArrowDown") {
+        } else if (event.key == "ArrowDown") {
           this.goingDown = false;
-        } else if (event.key === "ArrowLeft") {
+        } else if (event.key == "ArrowLeft") {
           this.goingLeft = false;
-        } else if (event.key === "ArrowRight") {
+        } else if (event.key == "ArrowRight") {
           this.goingRight = false;
         }
       },
@@ -172,15 +210,18 @@ export default class Game extends Phaser.Scene {
     );
     
     this.addJoystickForMobile()
-
-    this.input.keyboard.on("keydown", this.handleAction, this)
   }
 
   handleAction() {
     if (this.currentDiscussionStatus == DiscussionStatus.WAITING) {
       this.currentDiscussionStatus = DiscussionStatus.STARTED
-
       sceneEventsEmitter.emit(sceneEvents.DiscussionContinuing);
+      return
+    }
+
+    if (this.currentDiscussionStatus == DiscussionStatus.READY) {
+      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer'); // to improve
+      return
     }
   }
 
@@ -193,7 +234,7 @@ export default class Game extends Phaser.Scene {
           gameObject.body.onCollide = true;
         },
       });
-      this.physics.add.collider(this.enemies, this.dungeon);
+      this.physics.add.collider(this.enemies, this.land);
       this.physics.add.collider(this.enemies, this.enemies);
       this.physics.add.collider(
         this.enemies,
@@ -420,7 +461,7 @@ export default class Game extends Phaser.Scene {
     this.hero.body.setVelocity(0);
 
 
-    if (DiscussionStatus.STARTED == this.currentDiscussionStatus) {
+    if (DiscussionStatus.STARTED === this.currentDiscussionStatus || DiscussionStatus.WAITING == this.currentDiscussionStatus) {
       this.stopHero()
       return
     }

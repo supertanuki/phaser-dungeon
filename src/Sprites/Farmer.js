@@ -1,3 +1,4 @@
+import isMobile from "../Utils/isMobile";
 import { Direction, randomDirection } from "../Utils/randomDirection";
 
 class Farmer extends Phaser.Physics.Arcade.Sprite {
@@ -46,10 +47,6 @@ class Farmer extends Phaser.Physics.Arcade.Sprite {
       frames: [{ key: "farmer", frame: "walk-down-2" }],
     });
 
-    scene.physics.add.collider(this, scene.dungeon, () => {
-      this.direction = randomDirection(this.direction);
-    });
-
     this.direction = Direction.RIGHT;
 
     this.moveEvent = scene.time.addEvent({
@@ -59,16 +56,54 @@ class Farmer extends Phaser.Physics.Arcade.Sprite {
       },
       loop: true,
     });
+
+    this.chatImageUi = scene.add.image(0, 0, 'ui-chat');
+    this.chatImageUi.setVisible(false)
+    this.chatImageUi.setDepth(1000)
+
+    this.chatTextUi = scene.add.text(0, 2, isMobile() ? 'Appuyer pour continuer': 'Appuyer sur espace', {
+			font: '12px Arial',
+			color: '#fff',
+      backgroundColor: '#000',
+      padding: 2
+		})
+    this.chatTextUi.setVisible(false)
+    this.chatTextUi.setDepth(1000)
+  }
+
+  changeDirection() {
+    this.setImmobile()
+    this.direction = randomDirection(this.direction);
   }
 
   move() {
     this.isMoving = true
   }
 
+  stopChatting() {
+    this.chatImageUi.setVisible(false)
+    this.chatTextUi.setVisible(false)
+  }
+
+  readyToChat() {
+    this.stopMoving()
+    this.chatImageUi.x = this.x
+    this.chatImageUi.y = this.y - 20
+    this.chatImageUi.setVisible(true)
+
+    this.chatTextUi.x = this.x - 50
+    this.chatTextUi.y = this.y - 48
+    this.chatTextUi.setVisible(true)
+  }
+
   stopMoving() {
     this.isMoving = false
+    this.setImmobile()
+  }
+
+  setImmobile() {
     this.play("farmer-idle");
-    this.setVelocity(0);
+    this.setVelocity(0, 0);
   }
 
   preUpdate(time, delta) {
@@ -108,8 +143,7 @@ class Farmer extends Phaser.Physics.Arcade.Sprite {
         break;
 
       default:
-        this.play("farmer-idle");
-        this.setVelocity(0, 0);
+        this.setImmobile()
     }
   }
 }
