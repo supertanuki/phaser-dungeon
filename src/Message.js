@@ -20,8 +20,8 @@ export default class Message extends Phaser.Scene {
     })
     this.textObject
       .setShadow(0, 0, "rgba(0,0,0,1)", 3)
-      .setOrigin(0.5, 1)
-      .setScrollFactor(0)
+      //.setOrigin(0.5, 1)
+      //.setScrollFactor(0)
       .setDepth(1000)
       .setWordWrapWidth(300)
       .setActive(false)

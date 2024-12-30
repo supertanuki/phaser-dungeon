@@ -57,8 +57,6 @@ export default class Game extends Phaser.Scene {
     map.createLayer("subbottom", tileset);
     map.createLayer("bottom", tileset);
 
-
-
     map.getObjectLayer('hero').objects.forEach(heroPosition => {
       this.hero = this.physics.add.sprite(heroPosition.x, heroPosition.y, "hero", "run-down-1")
     });
