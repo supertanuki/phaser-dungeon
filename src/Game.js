@@ -67,6 +67,8 @@ export default class Game extends Phaser.Scene {
     map.getObjectLayer('farmer').objects.forEach(farmerPosition => {
       this.farmer = this.add.farmer(farmerPosition.x, farmerPosition.y, 'farmer')
       this.farmer.setImmovable(true)
+      this.farmer.setInteractive();
+      this.farmer.on("pointerdown", this.handleAction, this)
     });
 
     // Add jeeps
