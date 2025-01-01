@@ -9,6 +9,10 @@ export default class Workflow {
         currentMessage: -1,
         currentMessagePosition: 0,
       },
+      miner: {
+        currentMessage: -1,
+        currentMessagePosition: 0,
+      },
     };
 
     sceneEventsEmitter.on(
@@ -40,6 +44,7 @@ export default class Workflow {
   }
 
   startDiscussion(sprite) {
+    console.log('startDiscussion', sprite)
     this.currentSpritePosition[sprite].currentMessage++;
     this.currentSpritePosition[sprite].currentMessagePosition = 0;
     this.currentSprite = sprite;

@@ -1,12 +1,11 @@
 import Phaser from "phaser";
-import { createEnemyAnims } from "./EnemyAnims";
 import { createHeroAnims } from "./HeroAnims";
-import Enemy from "./Enemy";
 import { sceneEventsEmitter, sceneEvents } from "./Events/EventsCenter";
 import Jeep from "./Jeep";
-import Workflow from "./Workflow";
-import "./Sprites/Farmer";
 import isMobile from "./Utils/isMobile";
+
+import "./Sprites/Farmer";
+import "./Sprites/Miner";
 
 const DiscussionStatus = {
   'NONE': 'NONE',
@@ -37,6 +36,7 @@ export default class Game extends Phaser.Scene {
     this.heroHealth = 10;
     this.enemies;
     this.currentDiscussionStatus = DiscussionStatus.NONE;
+    this.currentDiscussionSprite = null
   }
 
   preload() {
@@ -67,15 +67,25 @@ export default class Game extends Phaser.Scene {
     map.getObjectLayer('farmer').objects.forEach(farmerPosition => {
       this.farmer = this.add.farmer(farmerPosition.x, farmerPosition.y, 'farmer')
       this.farmer.setImmovable(true)
-      this.farmer.setInteractive();
+      this.farmer.setInteractive()
       this.farmer.on("pointerdown", this.handleAction, this)
     });
 
+    
+    map.getObjectLayer('miner').objects.forEach(minerPosition => {
+      this.miner = this.add.miner(minerPosition.x, minerPosition.y, 'miner')
+      this.miner.setImmovable(true)
+      this.miner.setInteractive()
+      this.miner.on("pointerdown", this.handleAction, this)
+    });
+
     // Add jeeps
+    /*
     const jeepsLayer = map.getObjectLayer('jeeps')
     jeepsLayer.objects.forEach(jeepObject => {
       this.addEnemy(jeepObject.x, jeepObject.y);
     });
+    */
 
     // Add trees
     this.anims.create({
@@ -102,10 +112,20 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider(this.farmer, this.topObjects, () => {
       this.farmer.changeDirection()
     });
-
     this.physics.add.collider(this.farmer, this.hero, () => {
       sceneEventsEmitter.emit(sceneEvents.DiscussionReady, 'farmer')
       this.farmer.readyToChat()
+    });
+
+    this.physics.add.collider(this.miner, this.land, () => {
+      this.miner.changeDirection()
+    });
+    this.physics.add.collider(this.miner, this.topObjects, () => {
+      this.miner.changeDirection()
+    });
+    this.physics.add.collider(this.miner, this.hero, () => {
+      sceneEventsEmitter.emit(sceneEvents.DiscussionReady, 'miner')
+      this.miner.readyToChat()
     });
 
     this.physics.add.collider(this.hero, this.land);
@@ -118,20 +138,21 @@ export default class Game extends Phaser.Scene {
     sceneEventsEmitter.on(sceneEvents.DiscussionStarted, this.handleDiscussionStarted, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionWaiting, this.handleDiscussionWaiting, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnded, this)
-
-    // always set it at the end to priorize events listeners
-    new Workflow()
   }
 
-  handleDiscussionReady() {
+  handleDiscussionReady(sprite) {
     this.currentDiscussionStatus = DiscussionStatus.READY
+    this.currentDiscussionSprite = sprite
+    this.endWaitingToChatAfterDelay(sprite)
+  }
 
+  endWaitingToChatAfterDelay(sprite) {
     this.time.addEvent({
       callback: () => {
-        if (this.currentDiscussionStatus == DiscussionStatus.READY) {
+        if (this.currentDiscussionStatus === DiscussionStatus.READY) {
           this.currentDiscussionStatus = DiscussionStatus.NONE
-          this.farmer.stopChatting()
-          this.farmer.move()
+          this[sprite].stopChatting()
+          this[sprite].move()
         }
       },
       delay: 2000,
@@ -147,19 +168,18 @@ export default class Game extends Phaser.Scene {
   }
 
   handleDiscussionEnded(sprite) {
+    console.log('handleDiscussionEnded', sprite)
     this.currentDiscussionStatus = DiscussionStatus.NONE
-
-    if ('farmer' == sprite) {
-      this.farmer.stopChatting()
-      this.time.addEvent({
-        callback: () => {
-          if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
-            this.farmer.move()
-          }
-        },
-        delay: 2000,
-      });
-    }
+    this[sprite].stopChatting()
+    // move after delay
+    this.time.addEvent({
+      callback: () => {
+        if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
+          this[sprite].move()
+        }
+      },
+      delay: 2000,
+    });
   }
 
   createControls() {
@@ -212,7 +232,8 @@ export default class Game extends Phaser.Scene {
     this.addJoystickForMobile()
   }
 
-  handleAction() {
+  handleAction(event) {
+    console.log(event)
     if (this.currentDiscussionStatus == DiscussionStatus.WAITING) {
       this.currentDiscussionStatus = DiscussionStatus.STARTED
       sceneEventsEmitter.emit(sceneEvents.DiscussionContinuing);
@@ -220,7 +241,7 @@ export default class Game extends Phaser.Scene {
     }
 
     if (this.currentDiscussionStatus == DiscussionStatus.READY) {
-      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, 'farmer'); // to improve
+      sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, this.currentDiscussionSprite);
       return
     }
   }

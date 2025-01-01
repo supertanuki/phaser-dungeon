@@ -4,7 +4,7 @@ const messageWorkflow = {
       messages: [
         "Qui es-tu ? ►",
         "Tu n'as rien à faire dans notre village ! ►",
-        "Vas t-en !"
+        "Vas t-en !",
       ],
     },
     {
@@ -14,7 +14,7 @@ const messageWorkflow = {
         "Nous sommes sur les nerfs depuis quelques jours... ►",
         "depuis que ces miliciens sont venus et ont abattu des arbres... ►",
         "pour creuser le sol, à la recherche de matières premières précieuses. ►",
-        "Nous cherchons un moyen pour chasser ces miliciens."
+        "Nous cherchons un moyen pour chasser ces miliciens.",
       ],
       condition: {
         delayFromPreviousMessage: 10, // not implemented
@@ -22,7 +22,21 @@ const messageWorkflow = {
     },
     {
       messages: [
-        "Nous cherchons un moyen pour chasser ces miliciens. Peux-tu nous aider ?"
+        "Nous cherchons un moyen pour chasser ces miliciens. Peux-tu nous aider ?",
+      ],
+    },
+  ],
+  miner: [
+    {
+      messages: [
+        "Salut ! ►",
+        "Oh mais d'où viens-tu toi ? ►",
+        "Tu veux travailler à la mine ?",
+      ],
+    },
+    {
+      messages: [
+        "Tu es sûre de vouloir travailler à la mine ?",
       ],
     },
   ],
