@@ -23,7 +23,7 @@ export default class Preloader extends Phaser.Scene {
 		}, this);
 
 		this.load.image('tiles', 'img/Environment/PNG/tiles.png');
-		this.load.tilemapTiledJSON('dungeon', 'tiles/tiles-with-jeep.json');
+		this.load.tilemapTiledJSON('map', 'tiles/tiles.json');
 
 		this.load.plugin('rexvirtualjoystickplugin', 'plugins/rexvirtualjoystickplugin.min.js', true);
 

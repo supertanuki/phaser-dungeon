@@ -47,10 +47,9 @@ export default class Game extends Phaser.Scene {
     this.scene.run("game-ui")
     this.scene.run("message")
 
-    //createEnemyAnims(this.anims);
     createHeroAnims(this.anims);
 
-    const map = this.make.tilemap({ key: "dungeon" });
+    const map = this.make.tilemap({ key: "map" });
     const tileset = map.addTilesetImage("tiles", "tiles");
     this.land = map.createLayer("land", tileset);
     this.land.setCollisionByProperty({ collide: true });
@@ -71,21 +70,18 @@ export default class Game extends Phaser.Scene {
       this.farmer.on("pointerdown", this.handleAction, this)
     });
 
-    
+    let futurePosition
     map.getObjectLayer('miner').objects.forEach(minerPosition => {
-      this.miner = this.add.miner(minerPosition.x, minerPosition.y, 'miner')
-      this.miner.setImmovable(true)
-      this.miner.setInteractive()
-      this.miner.on("pointerdown", this.handleAction, this)
+      if ('miner_position1' === minerPosition.name) {
+        this.miner = this.add.miner(minerPosition.x, minerPosition.y, 'miner')
+        this.miner.setImmovable(true)
+        this.miner.setInteractive()
+        this.miner.on("pointerdown", this.handleAction, this)
+      } else {
+        futurePosition = { x: minerPosition.x, y: minerPosition.y }
+      }
     });
-
-    // Add jeeps
-    /*
-    const jeepsLayer = map.getObjectLayer('jeeps')
-    jeepsLayer.objects.forEach(jeepObject => {
-      this.addEnemy(jeepObject.x, jeepObject.y);
-    });
-    */
+    this.miner.addFuturePosition(futurePosition)
 
     // Add trees
     this.anims.create({
@@ -117,12 +113,6 @@ export default class Game extends Phaser.Scene {
       this.farmer.readyToChat()
     });
 
-    this.physics.add.collider(this.miner, this.land, () => {
-      this.miner.changeDirection()
-    });
-    this.physics.add.collider(this.miner, this.topObjects, () => {
-      this.miner.changeDirection()
-    });
     this.physics.add.collider(this.miner, this.hero, () => {
       sceneEventsEmitter.emit(sceneEvents.DiscussionReady, 'miner')
       this.miner.readyToChat()

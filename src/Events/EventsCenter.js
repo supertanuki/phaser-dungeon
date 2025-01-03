@@ -11,6 +11,7 @@ const sceneEvents = {
 	'DiscussionEnded': 'DiscussionEnded',
 	'DiscussionContinuing': 'DiscussionContinuing',
 	'MESSAGESSENT': 'MESSAGESSENT',
+	'EventsUnlocked': 'EventsUnlocked',
 }
 
 export {
