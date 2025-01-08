@@ -12,6 +12,7 @@ const DiscussionStatus = {
   'READY': 'READY',
 	'STARTED': 'STARTED',
 	'WAITING': 'WAITING',
+	'INPROGRESS': 'INPROGRESS',
 }
 
 export default class Game extends Phaser.Scene {
@@ -128,25 +129,21 @@ export default class Game extends Phaser.Scene {
     sceneEventsEmitter.on(sceneEvents.DiscussionStarted, this.handleDiscussionStarted, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionWaiting, this.handleDiscussionWaiting, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnded, this)
+    sceneEventsEmitter.on(sceneEvents.DiscussionInProgress, this.handleDiscussionInProgress, this)
   }
 
   handleDiscussionReady(sprite) {
+    if (this.currentDiscussionStatus !== DiscussionStatus.NONE) {
+      return
+    }
+
     this.currentDiscussionStatus = DiscussionStatus.READY
     this.currentDiscussionSprite = sprite
     this.endWaitingToChatAfterDelay(sprite)
   }
 
-  endWaitingToChatAfterDelay(sprite) {
-    this.time.addEvent({
-      callback: () => {
-        if (this.currentDiscussionStatus === DiscussionStatus.READY) {
-          this.currentDiscussionStatus = DiscussionStatus.NONE
-          this[sprite].stopChatting()
-          this[sprite].move()
-        }
-      },
-      delay: 2000,
-    });
+  handleDiscussionInProgress() {
+    this.currentDiscussionStatus = DiscussionStatus.INPROGRESS
   }
 
   handleDiscussionStarted() {
@@ -158,13 +155,26 @@ export default class Game extends Phaser.Scene {
   }
 
   handleDiscussionEnded(sprite) {
-    console.log('handleDiscussionEnded', sprite)
+    this.cameras.main.zoomTo(1, 100);
     this.currentDiscussionStatus = DiscussionStatus.NONE
     this[sprite].stopChatting()
     // move after delay
     this.time.addEvent({
       callback: () => {
         if (this.currentDiscussionStatus == DiscussionStatus.NONE) {
+          this[sprite].move()
+        }
+      },
+      delay: 2000,
+    });
+  }
+
+  endWaitingToChatAfterDelay(sprite) {
+    this.time.addEvent({
+      callback: () => {
+        if (this.currentDiscussionStatus === DiscussionStatus.READY) {
+          this.currentDiscussionStatus = DiscussionStatus.NONE
+          this[sprite].stopChatting()
           this[sprite].move()
         }
       },
@@ -222,15 +232,16 @@ export default class Game extends Phaser.Scene {
     this.addJoystickForMobile()
   }
 
-  handleAction(event) {
-    console.log(event)
-    if (this.currentDiscussionStatus == DiscussionStatus.WAITING) {
+  handleAction() {
+    if (this.currentDiscussionStatus === DiscussionStatus.WAITING) {
       this.currentDiscussionStatus = DiscussionStatus.STARTED
       sceneEventsEmitter.emit(sceneEvents.DiscussionContinuing);
       return
     }
 
-    if (this.currentDiscussionStatus == DiscussionStatus.READY) {
+    if (this.currentDiscussionStatus === DiscussionStatus.READY) {
+      this.cameras.main.zoomTo(1.5, 100);
+      this.currentDiscussionStatus = DiscussionStatus.STARTED
       sceneEventsEmitter.emit(sceneEvents.DiscussionStarted, this.currentDiscussionSprite);
       return
     }

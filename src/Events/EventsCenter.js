@@ -8,9 +8,10 @@ const sceneEvents = {
 	'DiscussionReady': 'DiscussionReady',
 	'DiscussionStarted': 'DiscussionStarted',
 	'DiscussionWaiting': 'DiscussionWaiting',
+	'DiscussionInProgress': 'DiscussionInProgress',
 	'DiscussionEnded': 'DiscussionEnded',
 	'DiscussionContinuing': 'DiscussionContinuing',
-	'MESSAGESSENT': 'MESSAGESSENT',
+	'MessageSent': 'MessageSent',
 	'EventsUnlocked': 'EventsUnlocked',
 }
 

@@ -6,7 +6,7 @@ export default class Message extends Phaser.Scene {
     super("message");
     this.textObject = null
     this.currentText = ''
-    this.delay = 20
+    this.delay = 1
   }
 
   create() {
@@ -27,7 +27,7 @@ export default class Message extends Phaser.Scene {
       .setActive(false)
       .setVisible(false)
 
-    sceneEventsEmitter.on(sceneEvents.MESSAGESSENT, this.handleMessage, this)
+    sceneEventsEmitter.on(sceneEvents.MessageSent, this.handleMessage, this)
     sceneEventsEmitter.on(sceneEvents.DiscussionEnded, this.handleDiscussionEnd, this)
   }
 
@@ -38,7 +38,7 @@ export default class Message extends Phaser.Scene {
 
   handleMessage(text) {
     if (this.textObject.visible && text === this.currentText) {
-        return
+      return
     }
 
     this.textObject.text = ''

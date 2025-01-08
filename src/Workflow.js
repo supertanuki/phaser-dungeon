@@ -77,7 +77,7 @@ export default class Workflow {
       return;
     }
 
-    sceneEventsEmitter.emit(sceneEvents.MESSAGESSENT, message);
+    this.sendMessage()
   }
 
   continueDiscussion() {
@@ -113,7 +113,8 @@ export default class Workflow {
       return;
     }
 
-    sceneEventsEmitter.emit(sceneEvents.MESSAGESSENT, message);
+    sceneEventsEmitter.emit(sceneEvents.DiscussionInProgress);
+    sceneEventsEmitter.emit(sceneEvents.MessageSent, message);
   }
 
   unlockMessages(data) {

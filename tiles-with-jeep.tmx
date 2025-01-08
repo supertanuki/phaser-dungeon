@@ -2696,7 +2696,7 @@
  </objectgroup>
  <objectgroup id="5" name="jeeps" offsetx="-56" offsety="46.5"/>
  <objectgroup id="7" name="hero">
-  <object id="178" name="hero" x="1252" y="633.333">
+  <object id="178" name="hero" x="1443.33" y="603.333">
    <point/>
   </object>
  </objectgroup>
